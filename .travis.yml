@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: b9WUe3vlZ12AZ9lxXOHNSbD9ekLMMSh0WzoAM0smTPhqiAhcDkKd5YaIhTdri/49yDkKukb1Wf63FQ0FIJ4nGkpJc4MzvKvtlPnp8wUlOouiFP2W4qIQ+EJmrq7DrQ6xtSB9fjyNBJzRU4IyWlPw+cQuIMJoE4gvDlkTRkZDcWK5VKfR0MsRAefn5dZ+R4wgNN5Eqt+hSPRMlsiMaisK841PPUhNQoEJxMqDPO6Rjq1egFIgMoYSVW6kHywisNK6kH9B/u/FFaq/ebkk5aMzcihsTwip9L5QqT/9CQjE5H0MEmL3OxcqHG6V0+ijv/E7Lo1SjTuwBwD4WhCO6xDVuhYmcpH/LhwdVI+v8feDbz34OuLGCpyBsxltvBkV3d7756NFa4jbwP3tTsxrpiGIbrqwhP/ht3oD7l+SSnyyOZrOe+6buXmuCbRwetlBTvzTO/y5r2UgdM0KT/G66odWls1y/jXZ4EYKVVL0V2PN2y6NtTZi7jzvJYtGyiY0ZKSyMAFFN0SqpW4PfSRlj4QIeQ2IGeD6OgvuTWkKVfszNump5nKaQALBcXn8o+QhndgbEzJFo3jMCbHeT5EH1kI21+kiJWfH4u8+1XF+3uJb2CUBUm8/hH+mN+r84z0YhNlYa2xei2YwCAxAod5d56UkaO1ZomnqFc/M81tQwhO3hms=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Christopher-Columbus-and-the-New-World-of-His-Discovery---Volume-2_4109
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
